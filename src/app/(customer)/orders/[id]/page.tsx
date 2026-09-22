@@ -60,13 +60,15 @@ export default async function OrderDetailPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { placed?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ placed?: string }>;
 }) {
   const session = await auth();
+  const { id } = await params;
+  const { placed } = await searchParams;
 
   const order = await getOrderById(
-    params.id,
+    id,
     session!.user.id,
   );
 
@@ -85,7 +87,7 @@ export default async function OrderDetailPage({
   return (
     <div className="shop-order-detail-page">
 
-      {searchParams.placed === "true" && (
+      {placed === "true" && (
         <div className="shop-order-success">
           <div className="shop-order-success-icon">
             <CheckCircle2 size={22} />
@@ -400,3 +402,10 @@ export default async function OrderDetailPage({
     </div>
   );
 }
+
+
+
+
+
+
+
