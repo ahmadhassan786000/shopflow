@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Container } from "react-bootstrap";
 import { getProducts, getAvailableBrands } from "@/services/productService";
 import { InfiniteProductGrid } from "@/components/product/InfiniteProductGrid";
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const PAGE_SIZE = 12;
 
 interface PageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     category?: string;
     minPrice?: string;
@@ -22,18 +22,20 @@ interface PageProps {
     sort?: string;
     brand?: string;
     page?: string;
-  };
+  }>;
 }
 
 export default async function ProductsPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+
   const [{ items, total, totalPages }, brands] = await Promise.all([
     getProducts({
-      search: searchParams.search,
-      categorySlug: searchParams.category,
-      minPrice: searchParams.minPrice ? Number(searchParams.minPrice) : undefined,
-      maxPrice: searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined,
-      brand: searchParams.brand,
-      sort: (searchParams.sort as never) ?? "newest",
+      search: resolvedSearchParams.search,
+      categorySlug: resolvedSearchParams.category,
+      minPrice: resolvedSearchParams.minPrice ? Number(resolvedSearchParams.minPrice) : undefined,
+      maxPrice: resolvedSearchParams.maxPrice ? Number(resolvedSearchParams.maxPrice) : undefined,
+      brand: resolvedSearchParams.brand,
+      sort: (resolvedSearchParams.sort as never) ?? "newest",
       page: 1,
       pageSize: PAGE_SIZE,
     }),
@@ -45,7 +47,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       <Breadcrumbs items={[{ label: "All Products" }]} />
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="h4 fw-bold mb-0">
-          {searchParams.search ? `Search results for "${searchParams.search}"` : "All Products"}
+          {resolvedSearchParams.search ? `Search results for "${resolvedSearchParams.search}"` : "All Products"}
         </h1>
         <span className="text-muted small">{total} product{total !== 1 ? "s" : ""}</span>
       </div>
@@ -54,18 +56,18 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
       {items.length > 0 ? (
         <InfiniteProductGrid
-          key={JSON.stringify(searchParams)}
+          key={JSON.stringify(resolvedSearchParams)}
           initialItems={items as never}
           initialTotal={total}
           initialTotalPages={totalPages}
           pageSize={PAGE_SIZE}
           query={{
-            search: searchParams.search,
-            category: searchParams.category,
-            minPrice: searchParams.minPrice,
-            maxPrice: searchParams.maxPrice,
-            brand: searchParams.brand,
-            sort: searchParams.sort,
+            search: resolvedSearchParams.search,
+            category: resolvedSearchParams.category,
+            minPrice: resolvedSearchParams.minPrice,
+            maxPrice: resolvedSearchParams.maxPrice,
+            brand: resolvedSearchParams.brand,
+            sort: resolvedSearchParams.sort,
           }}
         />
       ) : (
@@ -74,3 +76,5 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     </Container>
   );
 }
+
+

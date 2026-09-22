@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "react-bootstrap";
@@ -21,31 +21,33 @@ import {
 } from "@/components/ui/Pagination";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     sort?: string;
     minPrice?: string;
     maxPrice?: string;
     stock?: string;
     brand?: string;
-  };
+  }>;
 }
 
 interface CategoryItem {
   id: string;
   name: string;
   slug: string;
+  image?: string | null;
   children?: CategoryItem[];
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const category = await getCategoryBySlug(params.slug);
+  const { slug } = await params;
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     return {
@@ -125,7 +127,9 @@ export default async function CategoryPage({
   params,
   searchParams,
 }: PageProps) {
-  const category = await getCategoryBySlug(params.slug);
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
+  const category = await getCategoryBySlug(slug);
 
   if (!category) {
     notFound();
@@ -136,11 +140,11 @@ export default async function CategoryPage({
 
   const page = Math.max(
     1,
-    Number(searchParams.page ?? 1),
+    Number(resolvedSearchParams.page ?? 1),
   );
 
   const sort =
-    (searchParams.sort as
+    (resolvedSearchParams.sort as
       | "newest"
       | "price_asc"
       | "price_desc"
@@ -153,20 +157,20 @@ export default async function CategoryPage({
       categorySlug: category.slug,
       sort,
 
-      minPrice: searchParams.minPrice
-        ? Number(searchParams.minPrice)
+      minPrice: resolvedSearchParams.minPrice
+        ? Number(resolvedSearchParams.minPrice)
         : undefined,
 
-      maxPrice: searchParams.maxPrice
-        ? Number(searchParams.maxPrice)
+      maxPrice: resolvedSearchParams.maxPrice
+        ? Number(resolvedSearchParams.maxPrice)
         : undefined,
 
       stock:
-        searchParams.stock === "in"
+        resolvedSearchParams.stock === "in"
           ? "in"
           : undefined,
 
-      brand: searchParams.brand,
+      brand: resolvedSearchParams.brand,
 
       page,
       pageSize: PAGE_SIZE,
@@ -235,11 +239,11 @@ export default async function CategoryPage({
         <div className="shop-mobile-filter">
           <CategoryFilters
             mobile
-            minPrice={searchParams.minPrice ?? ""}
-            maxPrice={searchParams.maxPrice ?? ""}
-            sort={searchParams.sort ?? "newest"}
-            stock={searchParams.stock === "in"}
-            brand={searchParams.brand ?? ""}
+            minPrice={resolvedSearchParams.minPrice ?? ""}
+            maxPrice={resolvedSearchParams.maxPrice ?? ""}
+            sort={resolvedSearchParams.sort ?? "newest"}
+            stock={resolvedSearchParams.stock === "in"}
+            brand={resolvedSearchParams.brand ?? ""}
             brands={brands}
           />
         </div>
@@ -253,11 +257,11 @@ export default async function CategoryPage({
             {/* FILTERS */}
             <CategoryFilters
               mobile={false}
-              minPrice={searchParams.minPrice ?? ""}
-              maxPrice={searchParams.maxPrice ?? ""}
-              sort={searchParams.sort ?? "newest"}
-              stock={searchParams.stock === "in"}
-              brand={searchParams.brand ?? ""}
+              minPrice={resolvedSearchParams.minPrice ?? ""}
+              maxPrice={resolvedSearchParams.maxPrice ?? ""}
+              sort={resolvedSearchParams.sort ?? "newest"}
+              stock={resolvedSearchParams.stock === "in"}
+              brand={resolvedSearchParams.brand ?? ""}
               brands={brands}
             />
 
@@ -318,11 +322,11 @@ export default async function CategoryPage({
                 pageSize={PAGE_SIZE}
                 query={{
                   category: category.slug,
-                  minPrice: searchParams.minPrice,
-                  maxPrice: searchParams.maxPrice,
-                  stock: searchParams.stock,
-                  brand: searchParams.brand,
-                  sort: searchParams.sort,
+                  minPrice: resolvedSearchParams.minPrice,
+                  maxPrice: resolvedSearchParams.maxPrice,
+                  stock: resolvedSearchParams.stock,
+                  brand: resolvedSearchParams.brand,
+                  sort: resolvedSearchParams.sort,
                 }}
               />
             ) : (
@@ -399,3 +403,6 @@ export default async function CategoryPage({
     </main>
   );
 }
+
+
+

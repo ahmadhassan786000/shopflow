@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Container, Row, Col, Badge } from "react-bootstrap";
@@ -24,13 +24,14 @@ import { ReviewForm } from "./ReviewForm";
 import { auth } from "@/lib/auth";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -73,8 +74,9 @@ export async function generateMetadata({
 export default async function ProductDetailPage({
   params,
 }: PageProps) {
+  const { slug } = await params;
   const [product, session] = await Promise.all([
-    getProductBySlug(params.slug),
+    getProductBySlug(slug),
     auth(),
   ]);
 
@@ -543,6 +545,7 @@ export default async function ProductDetailPage({
     </main>
   );
 }
+
 
 
 
