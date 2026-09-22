@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Pagination as BsPagination } from "react-bootstrap";
 import { useSearchParams, usePathname } from "next/navigation";
 import { PackageOpen } from "lucide-react";
@@ -23,16 +22,16 @@ export function Pagination({ currentPage, totalPages }: { currentPage: number; t
 
   return (
     <BsPagination className="justify-content-center mt-4">
-      <BsPagination.Prev as={Link as never} href={hrefFor(Math.max(1, currentPage - 1))} disabled={currentPage === 1} />
+      <BsPagination.Prev href={hrefFor(Math.max(1, currentPage - 1))} disabled={currentPage === 1} />
       {pages.map((p, i) => (
         <>
           {i > 0 && pages[i - 1] !== p - 1 && <BsPagination.Ellipsis key={`e-${p}`} disabled />}
-          <BsPagination.Item key={p} active={p === currentPage} as={Link as never} href={hrefFor(p)}>
+          <BsPagination.Item key={p} active={p === currentPage} href={hrefFor(p)}>
             {p}
           </BsPagination.Item>
         </>
       ))}
-      <BsPagination.Next as={Link as never} href={hrefFor(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} />
+      <BsPagination.Next href={hrefFor(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} />
     </BsPagination>
   );
 }

@@ -36,7 +36,14 @@ export default async function WishlistPage() {
                 <Link href={`/products/${item.product.slug}`} className="text-dark text-decoration-none">
                   <p className="small text-truncate mb-1">{item.product.name}</p>
                 </Link>
-                <ProductPrice price={item.product.price} salePrice={item.product.salePrice} />
+                <ProductPrice
+                  price={Number(item.product.price)}
+                  salePrice={
+                    item.product.salePrice === null
+                      ? null
+                      : Number(item.product.salePrice)
+                  }
+                />
                 <WishlistItemActions productId={item.productId} />
               </div>
             </div>

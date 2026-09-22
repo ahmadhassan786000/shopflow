@@ -13,7 +13,7 @@ export interface ActionResult {
 }
 
 export async function registerAction(formData: FormData): Promise<ActionResult> {
-  const ip = headers().get("x-forwarded-for") ?? "unknown";
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
   const { success } = rateLimit(`register:${ip}`, RATE_LIMITS.REGISTER.limit, RATE_LIMITS.REGISTER.windowMs);
   if (!success) return { success: false, message: "Too many attempts. Please try again later." };
 

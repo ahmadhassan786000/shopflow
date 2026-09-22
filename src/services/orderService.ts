@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { calculateCartTotals } from "./cartService";
 import { generateOrderNumber } from "@/lib/utils";
 

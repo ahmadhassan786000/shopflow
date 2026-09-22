@@ -13,10 +13,12 @@ export const metadata = {
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   const [product, categories] = await Promise.all([
-    getProductById(params.id),
+    getProductById(id),
     getAllCategoriesFlat(),
   ]);
 

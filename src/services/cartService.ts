@@ -181,9 +181,7 @@ export async function calculateCartTotals(userId: string) {
     const imageUrl = item.product.images[0]?.url ?? null;
 
     const variantLabel = item.variant
-      ? Object.entries(item.variant.attributes as Record<string, unknown>)
-          .map(([key, value]) => `${key}: ${String(value)}`)
-          .join(" • ")
+      ? `${item.variant.name}: ${item.variant.value}`
       : null;
 
     return {

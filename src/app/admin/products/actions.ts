@@ -11,6 +11,9 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
+import { randomUUID } from "crypto";
 
 
 
@@ -35,6 +38,43 @@ function validateImageUrl(
       "Please provide a valid image URL.",
     );
   }
+}
+
+async function saveProductImage(
+  productId: string,
+  imageFile: File,
+) {
+  if (!imageFile.type.startsWith("image/")) {
+    throw new Error("Please select a valid image file.");
+  }
+
+  const extension = path.extname(imageFile.name).toLowerCase() || ".jpg";
+  const filename = `${randomUUID()}${extension}`;
+  const uploadDirectory = path.join(
+    process.cwd(),
+    "public",
+    "uploads",
+    "products",
+  );
+
+  await mkdir(uploadDirectory, { recursive: true });
+  await writeFile(
+    path.join(uploadDirectory, filename),
+    Buffer.from(await imageFile.arrayBuffer()),
+  );
+
+  const imageCount = await prisma.productImage.count({
+    where: { productId },
+  });
+
+  await prisma.productImage.create({
+    data: {
+      productId,
+      url: `/uploads/products/${filename}`,
+      altText: imageFile.name,
+      position: imageCount,
+    },
+  });
 }
 
 // ============================================================

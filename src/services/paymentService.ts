@@ -12,7 +12,11 @@ export interface PaymentProvider {
  * Stripe directly; everything goes through this service.
  */
 export class StripePaymentProvider implements PaymentProvider {
-  async createPaymentIntent(orderId: string, amount: number, currency = "pkr") {
+  async createPaymentIntent(
+    orderId: string,
+    amount: number,
+    currency = "pkr",
+  ): Promise<{ clientSecret: string; providerRef: string }> {
     // Example real implementation (uncomment once `stripe` package + keys are added):
     //
     // const stripe = new Stripe(process.env.PAYMENT_SECRET_KEY!, { apiVersion: "2024-06-20" });
@@ -28,7 +32,10 @@ export class StripePaymentProvider implements PaymentProvider {
     );
   }
 
-  async handleWebhookEvent(_payload: unknown, _signature: string) {
+  async handleWebhookEvent(
+    _payload: unknown,
+    _signature: string,
+  ): Promise<{ orderId: string; status: "SUCCEEDED" | "FAILED" }> {
     throw new Error("Webhook handling not configured â€” see src/app/api/webhooks/stripe/route.ts");
   }
 }
